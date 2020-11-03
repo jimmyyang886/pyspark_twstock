@@ -1,0 +1,7 @@
+hadoop fs -mkdir -p twstock/raw_data/transactions
+spark-submit --master spark://master:7077 import_transactions_hdfs.py 
+
+hadoop fs -mkdir -p twstock/raw_data/broker_transaction
+spark-submit --master spark://master:7077 import_broker_transaction_hdfs.py  
+
+hadoop fs -mkdir -p twstock/analysis/broker_transaction/DR

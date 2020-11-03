@@ -24,15 +24,13 @@ def broker_transaction2parquet(date):
                         .appName("Import_broker_transaction")\
                         .getOrCreate()
 
-    uname = 'xxxxx'
-    passwd = 'xxxxx'
-    
+
     schema = "bID STRING, sID STRING, Date Date, sn INTEGER, price FLOAT, buy INTEGER, sell INTEGER"
     
     broker_transaction = spark.read.jdbc(
                                          url = "jdbc:mysql://192.168.246.128:3306/twstock",
                                          table = f"(SELECT * FROM broker_transaction WHERE Date = '{date}')AS my_table",
-                                         properties = {'user': uname, 'password': passwd, 'customSchema' :schema}
+                                         properties = {'user': 'teb101Club', 'password': passwd, 'customSchema' :schema}
                                         )
     #broker_transaction.printSchema()
     #broker_transaction.show(5)
@@ -47,8 +45,8 @@ def broker_transaction2parquet(date):
 if __name__=='__main__':
     sc = SparkContext()
 
-    uname = 'xxxxx'
-    passwd = 'xxxxx'
+    uname = 'teb101Club'
+    passwd = 'teb101Club'
 
     source_dir= "/user/spark/twstock/raw_data/broker_transaction"
 

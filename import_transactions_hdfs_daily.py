@@ -3,7 +3,7 @@
 
 from pyspark import SparkConf, SparkContext, sql
 from pyspark.sql import SparkSession
-from datetime import datetime
+from datetime import datetime, timedelta
 #from pyspark.sql.types import StringType,DateType, FloatType, IntegerType, DecimalType
 
 #DataTypeList
@@ -22,8 +22,16 @@ def transactions2parquet(date):
                         .appName("Import_transactions")\
                         .getOrCreate()
 
-    uname = 'xxxxx'
-    passwd = 'xxxxx'
+#    schema = StructType([StructField("sID", StringType()),
+#        StructField("Date", DateType()), 
+#        StructField("capacity", DecimalType()),
+#        StructField("turnover", DecimalType()),
+#        StructField("open", FloatType()),
+#        StructField("high", FloatType()),
+#        StructField("low", FloatType()),
+#        StructField("close", FloatType()),
+#        StructField("change", FloatType()),
+#        StructField("transaction", DecimalType())])
 
     schema = """sID STRING, Date Date, capacity INTEGER, turnover LONG ,
         open FLOAT, high FLOAT, low FLOAT, close FLOAT,
@@ -32,10 +40,29 @@ def transactions2parquet(date):
     transactions = spark.read.jdbc(
                                    url = "jdbc:mysql://192.168.246.128:3306/twstock",
                                    table = f"(SELECT * FROM transactions WHERE Date = '{date}')AS my_table",
-                                   #customSchema = schema,
-                                   properties = {'user': uname, 'password': passwd, 'customSchema' : schema} 
+                                   properties = {'user': 'teb101Club', 'password': 'teb101Club', 'customSchema' : schema} 
                                   )
 
+    #transactions.show(10)
+    #transactions.printSchema()
+    #transactions = transactions.withColumn("date", transactions["date"].cast(DateType()))
+
+
+    #transactions = transactions.select(
+    #    transactions.sID.cast(StringType()),
+    #    transactions.Date.cast(DateType()),
+    #    transactions.capacity.cast(DecimalType()),
+    #    transactions.turnover.cast(DecimalType()),
+    #    transactions.open.cast(FloatType()),
+    #    transactions.high.cast(FloatType()),
+    #    transactions.low.cast(FloatType()),
+    #    transactions.close.cast(FloatType()),
+    #    transactions.change.cast(FloatType()),
+    #    transactions.transaction.cast(IntegerType()),
+    #)
+
+    #transactions.printSchema()
+    #transactions.show(5)
 
     path = "hdfs://master/user/spark/twstock/raw_data/transactions"
     #transactions.repartition(1).write.mode('overwrite').parquet(f"{path}/{date}.parquet")
@@ -45,6 +72,11 @@ def transactions2parquet(date):
 
 if __name__=='__main__':
 
-    transactions2parquet(datetime.today().date().isoformat())
+    if datetime.now().hour>14:
+        Curday=datetime.today().date().isoformat()
+    else:
+        Curday=(datetime.today()-timedelta(days=1)).date().isoformat()
+
+    transactions2parquet(Curday)
     
 
